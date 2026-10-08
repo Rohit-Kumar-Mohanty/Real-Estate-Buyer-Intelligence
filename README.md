@@ -596,4 +596,4 @@ I would also like to thank Unified Mentor and Parcl Co. Limited for providing th
 
 This project demonstrates how machine learning and interactive data visualization can be combined to analyze real estate buyer behavior and discover meaningful investment segments.
 
-The combination of data preprocessing, feature engineering, clustering, model evaluation, and Streamlit visualization pr
+The combination of data preprocessing, feature engineering, clustering, model evaluation, and Streamlit visualization provides an end-to-end framework for real estate market intelligence.
