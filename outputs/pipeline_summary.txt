@@ -1,0 +1,20 @@
+Best K: 3
+Buyer records: 2000
+Sold purchases linked to clients: 7305
+Features used:
+- age
+- satisfaction_score
+- properties_purchased
+- total_investment
+- average_property_price
+- total_floor_area_sqft
+- average_floor_area_sqft
+- purchase_span_days
+- has_property_purchase
+- client_type
+- gender
+- country
+- region
+- acquisition_purpose
+- loan_applied
+- referral_channel
