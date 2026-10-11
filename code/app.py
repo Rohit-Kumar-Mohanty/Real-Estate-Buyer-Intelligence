@@ -6,9 +6,13 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 ROOT = Path(__file__).resolve().parent
+# Support both the structured local project layout and the current GitHub layout,
+# where the CSV files are directly inside data/.
 DATA_CANDIDATES = [
     ROOT / "data" / "processed" / "buyer_clustered_dataset.csv",
+    ROOT / "data" / "buyer_clustered_dataset.csv",
     ROOT / "data" / "processed" / "buyer_analytical_dataset.csv",
+    ROOT / "data" / "buyer_analytical_dataset.csv",
 ]
 REPORTS = ROOT / "outputs" / "reports"
 FIGURES = ROOT / "outputs" / "figures"
@@ -59,8 +63,8 @@ def load_dataset(path):
 data_path = next((p for p in DATA_CANDIDATES if p.exists()), None)
 if data_path is None:
     st.error("The processed buyer dataset could not be found.")
-    st.markdown("**Expected file:** `data/processed/buyer_clustered_dataset.csv`")
-    st.markdown("Check that the `data` folder is committed to the GitHub repository alongside `app.py`.")
+    st.markdown("**Expected file:** `data/buyer_clustered_dataset.csv` or `data/processed/buyer_clustered_dataset.csv`")
+    st.markdown("Check that the buyer CSV is committed to the GitHub repository alongside `app.py`.")
     st.stop()
 
 try:
@@ -263,3 +267,4 @@ with reports_tab:
 
 st.markdown("---")
 st.caption("Real Estate Buyer Intelligence · K-Means + Hierarchical Clustering · Owner: Rohit Kumar Mohanty")
+
