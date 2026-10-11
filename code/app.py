@@ -46,7 +46,7 @@ components.html("""
 <div style="font-family:Arial,sans-serif;text-align:center;padding:10px;border:1px solid #8885;border-radius:12px">
  <div style="font-size:12px;font-weight:700;color:#00bcd4">LIVE CLOCK • INDIA STANDARD TIME</div>
  <div id="clock" style="font-size:27px;font-weight:800;color:#00bcd4">--:--:--</div>
- <div id="date" style="font-size:12px;font-weight:600;color:#e6f7ff;margin-top:3px">Loading date…</div>
+ <div id="date" style="font-size:12px;font-weight:600;color:#00bcd4;margin-top:3px">Loading date…</div>
 </div>
 <script>
 function tick(){
