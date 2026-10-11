@@ -60,11 +60,44 @@ st.sidebar.caption("Buyer Segmentation & Investment Profiling")
 def load_dataset(path):
     return pd.read_csv(path)
 
-data_path = next((p for p in DATA_CANDIDATES if p.exists()), None)
+data_path = next((candidate for candidate in DATA_CANDIDATES if candidate.is_file()), None)
+
+# Robust fallback: Streamlit deployments sometimes run with a different working
+# directory or a nested repository folder. Search below this app's directory
+# for the expected dataset filename rather than failing on one assumed layout.
 if data_path is None:
-    st.error("The processed buyer dataset could not be found.")
-    st.markdown("**Expected file:** `data/buyer_clustered_dataset.csv` or `data/processed/buyer_clustered_dataset.csv`")
-    st.markdown("Check that the buyer CSV is committed to the GitHub repository alongside `app.py`.")
+    wanted_names = {
+        "buyer_clustered_dataset.csv",
+        "buyer_analytical_dataset.csv",
+    }
+    try:
+        matches = [p for p in ROOT.rglob("*.csv") if p.is_file() and p.name.lower() in wanted_names]
+        # Prefer the clustered file, then the analytical file; choose the shortest
+        # path to avoid accidentally selecting a duplicate in an archive/sample folder.
+        matches.sort(key=lambda p: (p.name.lower() != "buyer_clustered_dataset.csv", len(p.parts)))
+        if matches:
+            data_path = matches[0]
+    except (OSError, PermissionError):
+        pass
+
+if data_path is None:
+    st.error("The processed buyer dataset could not be found in the deployed project files.")
+    st.markdown(
+        "The app checked `data/`, `data/processed/`, and nested project folders for "
+        "`buyer_clustered_dataset.csv` or `buyer_analytical_dataset.csv`."
+    )
+    # Show deployment diagnostics instead of guessing, so any remaining path issue
+    # is immediately visible in the hosted app.
+    st.caption(f"App directory detected by Streamlit: `{ROOT}`")
+    try:
+        visible = [str(p.relative_to(ROOT)) for p in ROOT.rglob("*.csv") if p.is_file()][:40]
+        if visible:
+            st.write("CSV files visible to the deployed app:")
+            st.code("\n".join(visible))
+        else:
+            st.warning("No CSV files are visible to the deployed app. Confirm the data files are committed to the same repository and branch.")
+    except Exception as exc:
+        st.caption(f"Could not list project files: {exc}")
     st.stop()
 
 try:
