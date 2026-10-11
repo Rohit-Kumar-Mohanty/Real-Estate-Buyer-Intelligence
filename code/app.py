@@ -35,8 +35,9 @@ st.markdown("""
 .block-container {padding-top: 1.4rem; padding-bottom: 2rem;}
 .main-title {font-size: clamp(1.7rem, 3vw, 2.5rem); font-weight: 800; line-height: 1.15;}
 .subtitle {font-size: 1rem; opacity: .78; margin: .35rem 0 1.2rem;}
-.owner-card {padding: 13px 15px; border-radius: 12px; border: 1px solid rgba(128,128,128,.3); margin: 10px 0; color: #ff3b3b;}
-.owner-card b {color: #ff3b3b;}
+.owner-card {padding: 13px 15px; border-radius: 12px; border: 1px solid rgba(128,128,128,.3); margin: 10px 0; color: #FF0000 !important;}
+.owner-card b, .owner-card .owner-name {color: #FF0000 !important;}
+.owner-name {font-weight: 700;}
 .section-title {font-size: 1.45rem; font-weight: 750; margin: .5rem 0;}
 div[data-testid="stMetric"] {border: 1px solid rgba(128,128,128,.22); padding: 12px; border-radius: 12px;}
 </style>
@@ -60,7 +61,7 @@ tick(); setInterval(tick,1000);
 """, height=105)
 
 st.sidebar.markdown("## 🏠 REAL ESTATE AI")
-st.sidebar.markdown("<div class='owner-card'><b>OWNER</b><br>Rohit Kumar Mohanty</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div class='owner-card' style='color:#FF0000 !important'><b style='color:#FF0000 !important'>OWNER</b><br><span class='owner-name' style='color:#FF0000 !important'>ROHIT KUMAR MOHANTY</span></div>", unsafe_allow_html=True)
 st.sidebar.caption("Buyer Segmentation & Investment Profiling")
 
 @st.cache_data
