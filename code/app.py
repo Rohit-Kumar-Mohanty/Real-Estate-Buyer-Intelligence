@@ -1,4 +1,4 @@
-from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -39,7 +39,10 @@ st.markdown("""
 .owner-card b, .owner-card .owner-name {color: #00bcd4 !important;}
 .owner-name {font-weight: 700;}
 .section-title {font-size: 1.45rem; font-weight: 750; margin: .5rem 0;}
-div[data-testid="stMetric"] {border: 1px solid rgba(128,128,128,.22); padding: 12px; border-radius: 12px;}
+div[data-testid="stMetric"] {border: 1px solid rgba(128,128,128,.22); padding: 12px; border-radius: 12px; min-width: 0;}
+/* Keep long financial values fully visible inside the five KPI cards. */
+div[data-testid="stMetricValue"] {font-size: clamp(.95rem, 1.25vw, 1.35rem) !important; white-space: nowrap !important; overflow: visible !important; text-overflow: clip !important;}
+div[data-testid="stMetricLabel"] {font-size: .9rem !important;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -149,7 +152,8 @@ if df.empty:
     st.stop()
 
 def money(value):
-    return f"${value:,.0f}" if pd.notna(value) else "N/A"
+    # Preserve cents and thousands separators so the KPI shows the actual total.
+    return f"${value:,.2f}" if pd.notna(value) else "N/A"
 
 total_buyers = len(df)
 properties = df["properties_purchased"].sum() if "properties_purchased" in df else 0
