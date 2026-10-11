@@ -6,16 +6,22 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 ROOT = Path(__file__).resolve().parent
-# Support both the structured local project layout and the current GitHub layout,
-# where the CSV files are directly inside data/.
-DATA_CANDIDATES = [
-    ROOT / "data" / "processed" / "buyer_clustered_dataset.csv",
-    ROOT / "data" / "buyer_clustered_dataset.csv",
-    ROOT / "data" / "processed" / "buyer_analytical_dataset.csv",
-    ROOT / "data" / "buyer_analytical_dataset.csv",
-]
-REPORTS = ROOT / "outputs" / "reports"
-FIGURES = ROOT / "outputs" / "figures"
+# Streamlit may run this file from a nested folder (the deployed path shown was
+# .../real-estate-buyer-intelligence/code). Search the app folder AND its parent
+# repository folders, because data/ may live beside code/ rather than inside it.
+SEARCH_ROOTS = [ROOT, *list(ROOT.parents)[:4]]
+DATA_CANDIDATES = []
+for base in SEARCH_ROOTS:
+    DATA_CANDIDATES.extend([
+        base / "data" / "processed" / "buyer_clustered_dataset.csv",
+        base / "data" / "buyer_clustered_dataset.csv",
+        base / "data" / "raw" / "buyer_clustered_dataset.csv",
+        base / "data" / "processed" / "buyer_analytical_dataset.csv",
+        base / "data" / "buyer_analytical_dataset.csv",
+        base / "data" / "raw" / "buyer_analytical_dataset.csv",
+    ])
+REPORTS = next((base / "outputs" / "reports" for base in SEARCH_ROOTS if (base / "outputs" / "reports").is_dir()), ROOT / "outputs" / "reports")
+FIGURES = next((base / "outputs" / "figures" for base in SEARCH_ROOTS if (base / "outputs" / "figures").is_dir()), ROOT / "outputs" / "figures")
 
 st.set_page_config(
     page_title="Real Estate Buyer Intelligence",
@@ -62,23 +68,25 @@ def load_dataset(path):
 
 data_path = next((candidate for candidate in DATA_CANDIDATES if candidate.is_file()), None)
 
-# Robust fallback: Streamlit deployments sometimes run with a different working
-# directory or a nested repository folder. Search below this app's directory
-# for the expected dataset filename rather than failing on one assumed layout.
+# Fallback search includes sibling/parent repository folders. This specifically
+# supports a repo layout where app.py is in code/ but data/ is at repository root.
 if data_path is None:
-    wanted_names = {
-        "buyer_clustered_dataset.csv",
-        "buyer_analytical_dataset.csv",
-    }
-    try:
-        matches = [p for p in ROOT.rglob("*.csv") if p.is_file() and p.name.lower() in wanted_names]
-        # Prefer the clustered file, then the analytical file; choose the shortest
-        # path to avoid accidentally selecting a duplicate in an archive/sample folder.
+    wanted_names = {"buyer_clustered_dataset.csv", "buyer_analytical_dataset.csv"}
+    matches = []
+    for base in SEARCH_ROOTS:
+        try:
+            matches.extend(
+                p for p in base.rglob("*.csv")
+                if p.is_file()
+                and p.name.lower() in wanted_names
+                and not any(part.lower() in {".git", ".venv", "venv", "site-packages"} for part in p.parts)
+            )
+        except (OSError, PermissionError):
+            continue
+    if matches:
+        matches = list(set(matches))
         matches.sort(key=lambda p: (p.name.lower() != "buyer_clustered_dataset.csv", len(p.parts)))
-        if matches:
-            data_path = matches[0]
-    except (OSError, PermissionError):
-        pass
+        data_path = matches[0]
 
 if data_path is None:
     st.error("The processed buyer dataset could not be found in the deployed project files.")
@@ -89,15 +97,18 @@ if data_path is None:
     # Show deployment diagnostics instead of guessing, so any remaining path issue
     # is immediately visible in the hosted app.
     st.caption(f"App directory detected by Streamlit: `{ROOT}`")
-    try:
-        visible = [str(p.relative_to(ROOT)) for p in ROOT.rglob("*.csv") if p.is_file()][:40]
-        if visible:
-            st.write("CSV files visible to the deployed app:")
-            st.code("\n".join(visible))
-        else:
-            st.warning("No CSV files are visible to the deployed app. Confirm the data files are committed to the same repository and branch.")
-    except Exception as exc:
-        st.caption(f"Could not list project files: {exc}")
+    st.caption("Repository folders checked: " + ", ".join(f"`{base}`" for base in SEARCH_ROOTS))
+    visible = []
+    for base in SEARCH_ROOTS:
+        try:
+            visible.extend(str(p) for p in base.rglob("*.csv") if p.is_file() and not any(part.lower() in {".git", ".venv", "venv", "site-packages"} for part in p.parts))
+        except (OSError, PermissionError):
+            continue
+    if visible:
+        st.write("CSV files visible to the deployed app:")
+        st.code("\n".join(visible[:60]))
+    else:
+        st.warning("No CSV files are visible in the app folder or its parent repository folders.")
     st.stop()
 
 try:
@@ -300,4 +311,3 @@ with reports_tab:
 
 st.markdown("---")
 st.caption("Real Estate Buyer Intelligence · K-Means + Hierarchical Clustering · Owner: Rohit Kumar Mohanty")
-
