@@ -1,11 +1,11 @@
-
+import pathlib
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
-ROOT = Path(__file__).resolve().parent
+ROOT = pathlib.Path(__file__).resolve().parent
 # Streamlit may run this file from a nested folder (the deployed path shown was
 # .../real-estate-buyer-intelligence/code). Search the app folder AND its parent
 # repository folders, because data/ may live beside code/ rather than inside it.
@@ -316,5 +316,4 @@ with reports_tab:
                 st.image(str(path), caption=path.stem.replace("_"," ").title(), use_container_width=True)
 
 st.markdown("---")
-st.caption("Real Estate Buyer Intelligence · K-Means + Hierarchical Clustering · Owner: ROHIT KUMAR MOHANTY")
-
+st.caption("Real Estate Buyer Intelligence · K-Means + Hierarchical Clustering · Owner: Rohit Kumar Mohanty")
